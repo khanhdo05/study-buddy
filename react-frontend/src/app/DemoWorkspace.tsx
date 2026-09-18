@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Brand } from '../components/Brand';
-import { initialConcepts, status, type Concept } from '../lib/demo';
+import { applyResult, initialConcepts, status, type Concept, type MissRating } from '../lib/demo';
 import { loadSyllabusInfo, saveSyllabusInfo, type SyllabusInfo } from '../lib/syllabus';
 import { useAccessibility } from '../lib/accessibility';
 import { Practice } from '../features/practice/Practice';
@@ -67,13 +67,8 @@ function DemoWorkspace() {
     setReviewOnly(review);
     setPage('Practice');
   }
-  function record(id: string, correct: boolean) {
-    const next = concepts.map(c => c.id === id ? {
-      ...c,
-      attempts: c.attempts + 1,
-      correct: c.correct + Number(correct),
-      lastCorrect: correct
-    } : c);
+  function record(id: string, correct: boolean, miss?: MissRating) {
+    const next = concepts.map(c => c.id === id ? applyResult(c, correct, miss) : c);
     setConcepts(next);
     try {
       localStorage.setItem('study-buddy-demo-v1', JSON.stringify(next));

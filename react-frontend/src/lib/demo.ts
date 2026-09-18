@@ -5,30 +5,62 @@ export type Concept = {
   attempts: number;
   correct: number;
   lastCorrect?: boolean;
+  box: number;
 };
 export const initialConcepts: Concept[] = [{
   id: 'membrane',
   name: 'Membrane transport',
   description: 'How molecules cross a selectively permeable membrane.',
   attempts: 0,
-  correct: 0
+  correct: 0,
+  box: 0
 }, {
   id: 'enzymes',
   name: 'Enzyme activity',
   description: 'How enzymes lower activation energy and affect reaction rates.',
   attempts: 0,
-  correct: 0
+  correct: 0,
+  box: 0
 }, {
   id: 'organelles',
   name: 'Cell organelles',
   description: 'The specialized structures that keep a cell functioning.',
   attempts: 0,
-  correct: 0
+  correct: 0,
+  box: 0
 }];
 export function status(concept: Concept) {
   if (!concept.attempts) return 'Not practiced';
   if (!concept.lastCorrect) return 'Review needed';
   return concept.correct >= 3 && concept.correct / concept.attempts >= .75 ? 'Mastered' : 'Developing';
+}
+
+// A miss rating is only collected on a wrong answer, to gauge how far off
+// the student was — Quizlet-style self-assessment rather than a flat wrong.
+// It drives a simple Leitner-box priority: box 0 concepts are shown far more
+// often than high-box ("basically got this") concepts, without hiding any
+// concept behind a hard calendar date, which would make spaced repetition
+// invisible in a single demo session.
+export type MissRating = 'blank' | 'close' | 'slip';
+const MAX_BOX = 4;
+export function applyResult(concept: Concept, correct: boolean, miss?: MissRating): Concept {
+  let box = concept.box;
+  if (correct) {
+    box = Math.min(box + 1, MAX_BOX);
+  } else if (miss === 'blank') {
+    box = 0;
+  } else if (miss === 'slip') {
+    // they knew it — don't punish a careless click, box stays put
+  } else {
+    box = Math.max(box - 1, 0);
+  }
+  return {
+    ...concept,
+    box,
+    attempts: concept.attempts + 1,
+    correct: concept.correct + Number(correct),
+    lastCorrect: correct
+  };
 }
 export const questions = [{
   concept: 'membrane',
@@ -68,7 +100,7 @@ export const questions = [{
   explanation: 'Lysosomes contain digestive enzymes that break down and recycle cellular material.'
 }];
 export function makeQuiz(concepts: Concept[], weakOnly: boolean) {
-  const sorted = [...concepts].sort((a, b) => Number(b.lastCorrect === false) - Number(a.lastCorrect === false) || a.attempts - b.attempts);
+  const sorted = [...concepts].sort((a, b) => a.box - b.box || Number(b.lastCorrect === false) - Number(a.lastCorrect === false) || a.attempts - b.attempts);
   const selected = weakOnly ? sorted.filter(c => c.lastCorrect === false) : sorted;
   return selected.map(c => {
     const variants = questions.filter(q => q.concept === c.id);
