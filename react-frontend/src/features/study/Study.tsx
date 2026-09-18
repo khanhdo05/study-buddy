@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import type { SyllabusInfo } from '../../lib/syllabus';
+import { useAccessibility } from '../../lib/accessibility';
+import { isSpeechSupported, speak, stopSpeaking } from '../../lib/speech';
 type Message = {
   role: 'assistant' | 'user';
   text: string;
@@ -34,11 +36,14 @@ export function Study({
   hints: boolean;
   syllabus: SyllabusInfo | null;
 }) {
+  const { focusMode } = useAccessibility();
   const [messages, setMessages] = useState<Message[]>([{
     role: 'assistant',
     text: intro
   }]);
   const [input, setInput] = useState('');
+  const [showAll, setShowAll] = useState(false);
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
   function send(text: string) {
     if (!text.trim()) return;
     setMessages(old => [...old, {
@@ -54,8 +59,26 @@ export function Study({
     e.preventDefault();
     send(input);
   }
-  return <div className="study-layout"><section className="panel chat"><div className="section-heading"><div className="chat-title"><span className="assistant-icon">✧</span><div><h2>Your study companion</h2><small>Chapter 3 · Cell structure & function</small></div></div><button className="text-button" onClick={() => setMessages([{
-          role: 'assistant',
-          text: intro
-        }])}>New chat</button></div><div className="messages" role="log" aria-label="Study conversation" aria-live="polite">{messages.map((message, i) => <div key={i} className={`message ${message.role}`}><span className="eyebrow">{message.role === 'user' ? 'YOU' : 'STUDY BUDDY'}</span><p>{message.text}</p></div>)}</div>{messages.length === 1 && <div className="suggestions">{['Explain membrane transport', 'How do enzymes work?', 'Make a review sheet'].map(prompt => <button className="secondary" key={prompt} onClick={() => send(prompt)}>{prompt} ↗</button>)}</div>}<form className="composer" onSubmit={submit}><label className="sr-only" htmlFor="question">Ask a course question</label><input id="question" value={input} onChange={e => setInput(e.target.value)} placeholder="What would you like to understand?" maxLength={2000} /><button className="primary" disabled={!input.trim()} type="submit" aria-label="Send message">↑</button></form><small className="chat-disclaimer">Prepared demo responses · not connected to an AI model</small></section><aside><section className="scope-card"><span className="eyebrow">YOUR LEARNING SPACE</span><h3>Grounded in your course.</h3><p>Currently exploring Chapter 3: cell structure and function.</p><hr /><strong>Instructor guidance</strong><p>{hints ? 'Guiding questions first. Share your attempt before asking for homework help.' : 'Concept explanations and sample review responses are enabled.'}</p><hr /><strong>Your syllabus</strong><p>{syllabus ? `${syllabus.courseName} · ${syllabus.topics.length} topic(s) in scope` : 'No syllabus uploaded yet — add one from the Materials tab.'}</p><span className="badge mastered">✓ Practice is encouraged</span></section></aside></div>;
+  function toggleReadAloud(i: number, text: string) {
+    if (speakingIndex === i) {
+      stopSpeaking();
+      setSpeakingIndex(null);
+      return;
+    }
+    setSpeakingIndex(i);
+    speak(text, () => setSpeakingIndex(null));
+  }
+  // Focus mode shows only the latest exchange so the conversation reads as
+  // one task at a time, with the earlier history a click away rather than
+  // gone.
+  const chunked = focusMode && !showAll && messages.length > 2;
+  const visibleMessages = chunked ? messages.slice(-2) : messages;
+  const indexOffset = messages.length - visibleMessages.length;
+  return <div className="study-layout"><section className="panel chat"><div className="section-heading"><div className="chat-title"><span className="assistant-icon">✧</span><div><h2>Your study companion</h2><small>Chapter 3 · Cell structure & function</small></div></div><button className="text-button" onClick={() => {
+          setMessages([{
+            role: 'assistant',
+            text: intro
+          }]);
+          setShowAll(false);
+        }}>New chat</button></div>{chunked && <button type="button" className="text-button" onClick={() => setShowAll(true)}>Show {messages.length - 2} earlier message{messages.length - 2 === 1 ? '' : 's'}</button>}<div className="messages" role="log" aria-label="Study conversation" aria-live="polite">{visibleMessages.map((message, i) => { const realIndex = indexOffset + i; return <div key={realIndex} className={`message ${message.role}`}><span className="eyebrow">{message.role === 'user' ? 'YOU' : 'STUDY BUDDY'}</span><p>{message.text}</p>{message.role === 'assistant' && isSpeechSupported() && <button type="button" className="text-button" onClick={() => toggleReadAloud(realIndex, message.text)}>{speakingIndex === realIndex ? '■ Stop' : '🔊 Read aloud'}</button>}</div>; })}</div>{messages.length === 1 && <div className="suggestions">{['Explain membrane transport', 'How do enzymes work?', 'Make a review sheet'].map(prompt => <button className="secondary" key={prompt} onClick={() => send(prompt)}>{prompt} ↗</button>)}</div>}<form className="composer" onSubmit={submit}><label className="sr-only" htmlFor="question">Ask a course question</label><input id="question" value={input} onChange={e => setInput(e.target.value)} placeholder="What would you like to understand?" maxLength={2000} /><button className="primary" disabled={!input.trim()} type="submit" aria-label="Send message">↑</button></form><small className="chat-disclaimer">Prepared demo responses · not connected to an AI model</small></section><aside><section className="scope-card"><span className="eyebrow">YOUR LEARNING SPACE</span><h3>Grounded in your course.</h3><p>Currently exploring Chapter 3: cell structure and function.</p><hr /><strong>Instructor guidance</strong><p>{hints ? 'Guiding questions first. Share your attempt before asking for homework help.' : 'Concept explanations and sample review responses are enabled.'}</p><hr /><strong>Your syllabus</strong><p>{syllabus ? `${syllabus.courseName} · ${syllabus.topics.length} topic(s) in scope` : 'No syllabus uploaded yet — add one from the Materials tab.'}</p><span className="badge mastered">✓ Practice is encouraged</span></section></aside></div>;
 }
