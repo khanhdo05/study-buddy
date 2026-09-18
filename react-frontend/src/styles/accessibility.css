@@ -176,3 +176,7 @@ html {
   background: #16302a;
   border-color: #2f6b52;
 }
+
+:root.a11y-dark .miss-rating {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
