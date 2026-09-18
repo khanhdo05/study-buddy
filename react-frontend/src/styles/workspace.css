@@ -1002,7 +1002,7 @@ hr {
   margin-top:12px;
 }
 
-.focus .instructor-note,.focus .practice-note,.focus .study-layout>aside,.focus .sidebar-course,.focus .support-note {
+.focus .instructor-note,.focus .practice-note,.focus .study-layout>aside,.focus .sidebar-course,.focus .support-note,.focus .stats,.focus .bottom-grid {
   display:none;
 }
 
