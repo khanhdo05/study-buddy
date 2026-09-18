@@ -148,6 +148,14 @@
   display:flex;
   align-items:center;
   gap:12px;
+  width:100%;
+  background:none;
+  text-align:left;
+  border-radius:8px;
+}
+
+.profile:hover,.profile.active {
+  background:#f3f5f9;
 }
 
 .avatar {

@@ -5,8 +5,19 @@ import './accessibility.css'
 export function AccessibilityMenu() {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  const { fontScale, setFontScale, fontFamily, setFontFamily, contrast, setContrast, reduceMotion, setReduceMotion, reset } =
-    useAccessibility()
+  const {
+    fontScale,
+    setFontScale,
+    fontFamily,
+    setFontFamily,
+    contrast,
+    setContrast,
+    reduceMotion,
+    setReduceMotion,
+    darkMode,
+    setDarkMode,
+    reset,
+  } = useAccessibility()
 
   useEffect(() => {
     if (!open) return
@@ -65,6 +76,14 @@ export function AccessibilityMenu() {
               </button>
             </div>
           </div>
+
+          <label className="policy-option">
+            <div>
+              <strong>Dark mode</strong>
+              <span>Dark background, light text</span>
+            </div>
+            <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} />
+          </label>
 
           <label className="policy-option">
             <div>

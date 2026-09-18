@@ -56,3 +56,122 @@ html {
   animation: none !important;
   scroll-behavior: auto !important;
 }
+
+/* Dark mode. Workspace.css hardcodes most surface colors as literal hex
+   rather than CSS variables, so rather than risk the light theme by
+   rewriting it, this repaints the same surfaces additively under one class. */
+:root.a11y-dark {
+  --muted: #94a3b8;
+  --border: #2a3346;
+  color-scheme: dark;
+}
+
+:root.a11y-dark body {
+  background: #0f1420;
+  color: #e2e8f0;
+}
+
+:root.a11y-dark h1,
+:root.a11y-dark h2,
+:root.a11y-dark h3,
+:root.a11y-dark strong {
+  color: #e2e8f0;
+}
+
+:root.a11y-dark .sidebar,
+:root.a11y-dark .topbar,
+:root.a11y-dark .panel,
+:root.a11y-dark .concept-list,
+:root.a11y-dark .a11y-panel,
+:root.a11y-dark .auth-form-wrap {
+  background: #161c2c;
+  border-color: #2a3346;
+}
+
+:root.a11y-dark .top-actions select,
+:root.a11y-dark .secondary,
+:root.a11y-dark .form-fields input,
+:root.a11y-dark .form-fields select,
+:root.a11y-dark .form-fields textarea,
+:root.a11y-dark .invite-label input,
+:root.a11y-dark textarea,
+:root.a11y-dark select,
+:root.a11y-dark input:not([type='checkbox']):not([type='radio']) {
+  background: #1f2637;
+  color: #e2e8f0;
+  border-color: #2a3346;
+}
+
+:root.a11y-dark .secondary {
+  color: #cbd5e1;
+}
+
+:root.a11y-dark .nav-item.active {
+  background: #1c2c45;
+}
+
+:root.a11y-dark .nav-count,
+:root.a11y-dark .avatar,
+:root.a11y-dark .teacher .avatar,
+:root.a11y-dark .profile:hover,
+:root.a11y-dark .profile.active {
+  background: #232a3b;
+}
+
+:root.a11y-dark .message,
+:root.a11y-dark .concept-row,
+:root.a11y-dark .material,
+:root.a11y-dark .instructor-note,
+:root.a11y-dark .scope-card {
+  background: #1a2032;
+}
+
+:root.a11y-dark .message.user {
+  background: #1c2c45;
+}
+
+:root.a11y-dark .badge {
+  background: #232a3b;
+}
+
+:root.a11y-dark .badge.mastered {
+  background: #16302a;
+  color: #6ee7b7;
+}
+
+:root.a11y-dark .badge.developing {
+  background: #1c2c45;
+  color: #93b8f5;
+}
+
+:root.a11y-dark .badge.review-needed {
+  background: #3a2a15;
+  color: #f0b25c;
+}
+
+:root.a11y-dark .stat-icon.blue {
+  background: #1c2c45;
+  color: #93b8f5;
+}
+
+:root.a11y-dark .stat-icon.green {
+  background: #16302a;
+  color: #6ee7b7;
+}
+
+:root.a11y-dark .stat-icon.orange {
+  background: #3a2a15;
+  color: #f0b25c;
+}
+
+:root.a11y-dark .answer,
+:root.a11y-dark .feedback {
+  background: #1a2032;
+  border-color: #2a3346;
+}
+
+:root.a11y-dark .feedback.success,
+:root.a11y-dark .answer.correct {
+  background: #16302a;
+  border-color: #2f6b52;
+}
