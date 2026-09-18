@@ -89,6 +89,7 @@ html {
 }
 
 :root.a11y-dark .top-actions select,
+:root.a11y-dark .a11y-stepper button,
 :root.a11y-dark .secondary,
 :root.a11y-dark .form-fields input,
 :root.a11y-dark .form-fields select,
