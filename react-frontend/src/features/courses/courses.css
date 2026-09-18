@@ -12,3 +12,15 @@
 .invite-label { max-width: 500px; }
 @media (max-width: 850px) { .course-home-grid { grid-template-columns: 1fr; } }
 @media (max-width: 550px) { .course-cards { grid-template-columns: 1fr; } .courses-workspace .page-heading { align-items: start; flex-direction: column; } .courses-workspace .topbar { height: auto; padding-block: 18px; } .courses-workspace .brand { font-size: 1rem; } }
+
+.real-course main { padding-top: 35px; padding-bottom: 35px; }
+.course-breadcrumb { display: flex; align-items: center; min-width: 0; }
+.course-summary dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 24px 0 0; }
+.course-summary dt { font-size: .875rem; color: var(--muted); margin-bottom: 8px; }
+.course-summary dd { margin: 0; overflow-wrap: anywhere; }
+.workspace-links { margin-top: 24px; }
+.course-settings { display: grid; gap: 24px; }
+.real-course h1, .real-course .sidebar-course strong, .course-card h3 { overflow-wrap: anywhere; }
+.real-course .sidebar-bottom > button { margin: 20px 0; }
+.real-course .page-heading { flex-wrap: wrap; }
+@media (max-width: 580px) { .course-summary dl { grid-template-columns: 1fr; } }

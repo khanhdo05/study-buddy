@@ -59,9 +59,9 @@ The fixture verifies SQL and row-level access behavior, not Supabase Auth token 
 ## Manual end-to-end checks
 
 1. Sign up as a professor, confirm email, sign in, and create a course.
-2. Open that course and generate an invitation code.
+2. Open that course, select **Course settings**, and generate an invitation code.
 3. Sign out, sign up as a student with a different email, and join using the code.
-4. Refresh: the student should still see the course. Sign out and back in to confirm persistence.
+4. Refresh inside the course workspace: the student should remain in the selected course view. Try browser Back and returning to My courses. Sign out and back in to confirm persistence.
 5. A second student must not see the course until joining; a second professor must not see or manage it.
 6. Request a password reset and use the emailed link to set a new password.
 7. Open the sample course: its scripted chat and device-local progress must remain clearly separate from account data.

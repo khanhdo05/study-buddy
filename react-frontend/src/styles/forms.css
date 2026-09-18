@@ -4,3 +4,7 @@
 .form-fields .primary { justify-content: center; }
 .form-error { color: #a22d29; padding: 14px; background: #fff0ee; border-radius: 7px; margin-top: 20px; }
 .form-message { color: #276650; padding: 14px; background: #eaf7ef; border-radius: 7px; margin-top: 20px; }
+
+.form-fields textarea { width: 100%; resize: vertical; padding: 12px; border: 1px solid #cbd5e1; border-radius: 7px; font: inherit; }
+.form-fields .policy-check { display: flex; align-items: center; gap: 12px; }
+.form-fields .policy-check input { width: 18px; height: 18px; }
