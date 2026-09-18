@@ -6,7 +6,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .agent import Agent
-from .llm import LLMProvider
+from .llm import LLMError, LLMProvider
 from .models import ChatRequest, EvaluateRequest, GenerateRequest, RecommendationRequest, SessionRequest
 from .store import Store
 
@@ -34,8 +34,8 @@ app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "http
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok", "service": "learner-agent"}
+def health() -> dict[str, str | bool]:
+    return {"status": "ok", "service": "learner-agent", "llm_configured": agent.llm.configured}
 
 
 @app.post("/v1/sessions", dependencies=[Depends(authenticate)])
@@ -92,6 +92,8 @@ def chat(request: ChatRequest) -> dict:
         raise HTTPException(404, "Run not found")
     try:
         return agent.chat(run, request.message, request.student_attempt)
+    except LLMError as exc:
+        raise HTTPException(502, str(exc)) from exc
     except Exception as exc:
         raise HTTPException(502, "Agent could not produce a grounded response") from exc
 

@@ -125,4 +125,22 @@ Before signing up:
 
 Without configuration, account forms are disabled and the sample course remains available. Real courses start empty; opening one does not substitute sample Biology content or import local demo progress.
 
+## Local learner-agent integration
+
+The Study view creates a grounded learner-agent session and sends chat requests through the Vite `/agent` proxy. The proxy adds `AGENT_API_KEY` server-side, so the key is not exposed to browser JavaScript.
+
+Run the agent and frontend in separate terminals:
+
+```bash
+cd backend
+AGENT_API_KEY=local-dev-key STUDY_BUDDY_DB=/tmp/study-buddy.sqlite3 uvicorn app.main:app --reload --port 8000
+```
+
+```bash
+cd react-frontend
+AGENT_API_KEY=local-dev-key VITE_LEARNER_AGENT_URL=http://127.0.0.1:8000 npm run dev
+```
+
+An `OPENROUTER_API_KEY` is optional for local startup. Without it, the agent runs its safe local fallback; set it only in the backend environment to enable model-backed answers. Never put it in `VITE_*` variables or frontend code.
+
 Authentication screens live in `src/features/auth/`, course screens in `src/features/courses/`, and the session gate in `src/app/AppRouter.tsx`; the shared Supabase client and account types live in `src/lib/supabase.ts`. Database migrations and permission tests live in `../supabase/`.

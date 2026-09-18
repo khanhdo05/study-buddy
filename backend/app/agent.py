@@ -47,24 +47,27 @@ class Agent:
             "quiz={title,questions:[{question_id,concept_id,stem,choices:[{id,text}],correct_answer,rationale,citations,quality}]}. "
             "For combined, return concept_map, review_sheet, and quiz. Keep output compact."
         )
+        provider = "llm"
         try:
             result = self.llm.json(SYSTEM, prompt)
         except LLMError:
             result = self._fallback(operation, context, count)
+            provider = "local-fallback"
         self._validate(result, operation)
         if "quiz" in result:
             result["quiz"]["quiz_id"] = f"quiz_{uuid.uuid4().hex[:12]}"
             self.store.save_quiz(result["quiz"]["quiz_id"], run, result["quiz"])
-        return {"run_id": run["run_id"], "operation": operation, "grounded": True, "provider": "llm" if self.llm.configured else "local-fallback", "content": result}
+        return {"run_id": run["run_id"], "operation": operation, "grounded": True, "provider": provider, "content": result}
 
     def chat(self, run: Any, message: str, attempt: str | None) -> dict[str, Any]:
         policy = json.loads(run["scope"])
-        if policy.get("require_attempt_before_help") and not attempt:
+        asks_for_direct_solution = re.search(r"homework|assignment|graded|problem\s*\d+|give me the answer|solve this|do this for me", message, re.I)
+        if policy.get("require_attempt_before_help") and asks_for_direct_solution and not attempt:
             return {"answer": "Your instructor requires an attempt first. Share what you tried and where you got stuck.", "mode": "guided", "citations": []}
         context = self._context(run)
         if self.llm.configured:
             return self.llm.json(SYSTEM, f"Question: {message}\nStudent attempt: {attempt or 'none'}\nEvidence:\n{context}\nReturn {{answer, citations, uncertainty}}.")
-        return {"answer": "The local agent is ready, but no LLM key is configured. Add OPENAI_API_KEY to enable grounded course explanations.", "mode": "configuration", "citations": []}
+        return {"answer": "The local agent is ready, but no LLM key is configured. Add OPENROUTER_API_KEY to enable grounded course explanations.", "mode": "configuration", "citations": []}
 
     def _fallback(self, operation: str, context: str, count: int) -> dict[str, Any]:
         sources = re.findall(r"SOURCE ([^ ]+).*?\n(.+?)(?=\n\nSOURCE|$)", context, re.S)

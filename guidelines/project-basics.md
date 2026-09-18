@@ -1,0 +1,5 @@
+- The code written in the repo should follow clean coding practices such as DRY.
+- For the purpose of this project prefer being concise over bloating. Expansion and greater details would be more preferred for the more complex pieces.
+- Avoid comments where the code is clearly readable.
+- All naming conventions should be consistent throughout the code.
+- Naming should follow legible and understandable patterns.

@@ -11,7 +11,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 export AGENT_API_KEY='local-dev-key'
 # Optional: enables model-backed generation; without it, a safe source-index fallback is used.
-export OPENAI_API_KEY='...'
+export OPENROUTER_API_KEY='...'
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -24,7 +24,9 @@ Every `/v1/*` request needs `Authorization: Bearer $AGENT_API_KEY`. `/health` is
 - Generated quiz keys are persisted but should be human-reviewed before a quiz is marked trusted.
 - Call `POST /v1/quiz/{quiz_id}/verify` after a human checks the answer key; grading is rejected until then.
 - The frontend can call this service through a backend proxy; do not expose the agent API key in the browser.
-- The LLM adapter uses an OpenAI-compatible chat-completions endpoint and can be replaced through `LLM_ENDPOINT`.
+- The default provider is OpenRouter using `qwen/qwen3.8-27b:free`. Set `LLM_MODEL` or `LLM_ENDPOINT` to use another OpenAI-compatible model/provider.
+- `OPENROUTER_API_KEY` is preferred; `OPENAI_API_KEY` remains a compatibility fallback.
+- The service uses the `certifi` CA bundle for outbound TLS verification on macOS/Python installations whose system certificate path is incomplete.
 
 ## Smoke test
 

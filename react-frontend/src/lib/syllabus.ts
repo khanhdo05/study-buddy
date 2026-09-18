@@ -6,6 +6,7 @@ export type SyllabusPolicy = {
 
 export type SyllabusInfo = {
   fileName: string;
+  sourceText?: string;
   uploadedAt: string;
   courseName: string;
   topics: string[];
@@ -81,6 +82,7 @@ export function extractSyllabusInfo(text: string, fileName: string): SyllabusInf
 
   return {
     fileName,
+    sourceText: text,
     uploadedAt: new Date().toISOString(),
     courseName: findCourseName(text),
     topics,
