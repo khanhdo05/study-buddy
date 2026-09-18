@@ -25,6 +25,8 @@ Give it a syllabus and a chapter (or a research paper). It must do the following
 
 -with memory that survives across sessions. 
 
+-take inputs from the professor as to what may be included from the course work
+
 +Optional:
 
 inclusion angle: a learning-style mode (dyslexia-friendly formatting, ADHD-paced
