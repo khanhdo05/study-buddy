@@ -9,6 +9,7 @@ type Settings = {
   contrast: ContrastOption
   reduceMotion: boolean
   focusMode: boolean
+  darkMode: boolean
 }
 
 const DEFAULTS: Settings = {
@@ -17,6 +18,7 @@ const DEFAULTS: Settings = {
   contrast: 'default',
   reduceMotion: false,
   focusMode: false,
+  darkMode: false,
 }
 
 // eslint-disable-next-line react-refresh/only-export-components -- shared constant lives alongside the provider/hook intentionally
@@ -40,6 +42,7 @@ type AccessibilityContextValue = Settings & {
   setContrast: (value: ContrastOption) => void
   setReduceMotion: (value: boolean) => void
   setFocusMode: (value: boolean) => void
+  setDarkMode: (value: boolean) => void
   reset: () => void
 }
 
@@ -65,7 +68,8 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     root.classList.toggle('a11y-font-dyslexia', settings.fontFamily === 'dyslexia')
     root.classList.toggle('a11y-contrast-high', settings.contrast === 'high')
     root.classList.toggle('a11y-reduce-motion', settings.reduceMotion)
-  }, [settings.fontScale, settings.fontFamily, settings.contrast, settings.reduceMotion])
+    root.classList.toggle('a11y-dark', settings.darkMode)
+  }, [settings.fontScale, settings.fontFamily, settings.contrast, settings.reduceMotion, settings.darkMode])
 
   const value = useMemo<AccessibilityContextValue>(
     () => ({
@@ -75,6 +79,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       setContrast: (value) => setSettings((s) => ({ ...s, contrast: value })),
       setReduceMotion: (value) => setSettings((s) => ({ ...s, reduceMotion: value })),
       setFocusMode: (value) => setSettings((s) => ({ ...s, focusMode: value })),
+      setDarkMode: (value) => setSettings((s) => ({ ...s, darkMode: value })),
       reset: () => setSettings(DEFAULTS),
     }),
     [settings],
