@@ -1,0 +1,14 @@
+Course: Introductory Cell Biology (BIO 210)
+
+Chapter 1: Cell Structure and Membranes
+Chapter 2: Lysosomal Sequestration and Degradation Pathways
+Chapter 3: Mitochondrial Energy Production
+Chapter 4: Protein Synthesis and Trafficking
+
+Academic Integrity and AI Use Policy:
+Students may use the course AI assistant to receive conceptual explanations,
+concept maps, and review sheets. The assistant must show your work and use
+guided hints rather than direct answers on any assigned homework or graded
+problem; you must show your own reasoning before receiving a full explanation.
+Do not provide direct solutions to graded homework. Violating this policy is
+an academic integrity violation under the university honor code.
