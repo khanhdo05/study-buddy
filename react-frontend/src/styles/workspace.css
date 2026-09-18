@@ -24,6 +24,9 @@
   font-size:1.3rem;
   letter-spacing:-.8px;
   margin:0 0 54px 8px;
+  background:none;
+  color:inherit;
+  padding:0;
 }
 
 .brand-mark {

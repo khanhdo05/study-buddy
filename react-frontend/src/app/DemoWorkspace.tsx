@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Brand } from '../components/Brand';
 import { initialConcepts, status, type Concept } from '../lib/demo';
 import { loadSyllabusInfo, saveSyllabusInfo, type SyllabusInfo } from '../lib/syllabus';
+import { useAccessibility } from '../lib/accessibility';
 import { Practice } from '../features/practice/Practice';
 import { Study } from '../features/study/Study';
 import { Materials } from '../features/materials/Materials';
 import { ConceptList } from '../features/progress/ConceptList';
+import { AccessibilityMenu } from '../features/accessibility/AccessibilityMenu';
 type Page = 'Overview' | 'Study' | 'Practice' | 'Progress' | 'Materials' | 'Course settings';
 const nav: {
   page: Page;
@@ -37,13 +39,25 @@ function DemoWorkspace() {
   const [page, setPage] = useState<Page>('Overview');
   const [role, setRole] = useState('Student');
   const [concepts, setConcepts] = useState(loadConcepts);
-  const [focus, setFocus] = useState(false);
+  const { focusMode, setFocusMode } = useAccessibility();
   const [hints, setHints] = useState(true);
   const [storageError, setStorageError] = useState(false);
   const [reviewOnly, setReviewOnly] = useState(false);
   const [syllabus, setSyllabus] = useState<SyllabusInfo | null>(loadSyllabusInfo);
+  const mainRef = useRef<HTMLElement>(null);
+  const isFirstRender = useRef(true);
   const attempts = concepts.reduce((n, c) => n + c.attempts, 0);
   const weak = concepts.filter(c => c.lastCorrect === false).length;
+  useEffect(() => {
+    // Move focus to the new page's content on navigation (not on first
+    // mount) so screen-reader users hear the change instead of losing their
+    // place in the nav.
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    mainRef.current?.focus();
+  }, [page]);
   function updateSyllabus(info: SyllabusInfo) {
     setSyllabus(info);
     saveSyllabusInfo(info);
@@ -67,7 +81,7 @@ function DemoWorkspace() {
       setStorageError(true);
     }
   }
-  return <div className={focus ? 'app focus' : 'app'}>
+  return <div className={focusMode ? 'app focus' : 'app'}>
     <a className="skip-link" href="#main">Skip to content</a>
     <aside className="sidebar">
       <Brand onClick={() => setPage('Overview')} />
@@ -76,11 +90,11 @@ function DemoWorkspace() {
       <div className="sidebar-course"><span className="eyebrow">CURRENT COURSE</span><strong>Introduction to Biology</strong><span>BIO 101 · Fall semester</span><div className="course-line" /><small>Week 3 of 16</small></div>
       <div className="sidebar-bottom"><div className="support-note"><span>✓</span><div><strong>Learning, with boundaries.</strong><small>Your instructor guides the way.</small></div></div><div className="profile"><span className="avatar">JD</span><div><strong>Jamie Davis</strong><small>{role} demo</small></div></div></div>
     </aside>
-    <div className="workspace"><header className="topbar"><span>My courses <span className="slash">/</span> <strong>BIO 101</strong></span><div className="top-actions"><label className="focus-toggle"><input type="checkbox" checked={focus} onChange={e => setFocus(e.target.checked)} /> Focus mode</label><label className="sr-only" htmlFor="role">Demo role</label><select id="role" value={role} onChange={e => {
+    <div className="workspace"><header className="topbar"><span>My courses <span className="slash">/</span> <strong>BIO 101</strong></span><div className="top-actions"><label className="focus-toggle"><input type="checkbox" checked={focusMode} onChange={e => setFocusMode(e.target.checked)} /> Focus mode</label><AccessibilityMenu /><label className="sr-only" htmlFor="role">Demo role</label><select id="role" value={role} onChange={e => {
             setRole(e.target.value);
             setPage(e.target.value === 'Professor' ? 'Course settings' : 'Overview');
           }}><option>Student</option><option>Professor</option></select></div></header>
-    <main id="main"><div className="demo-banner"><span className="live-dot" /> Interactive demo <span>Sample course · practice saved in this browser · no live AI</span></div>{storageError && <p role="alert">Browser storage is unavailable. Progress will only last for this session.</p>}
+    <main id="main" ref={mainRef} tabIndex={-1}><div className="demo-banner"><span className="live-dot" /> Interactive demo <span>Sample course · practice saved in this browser · no live AI</span></div>{storageError && <p role="alert">Browser storage is unavailable. Progress will only last for this session.</p>}
     <div className="page-heading"><div><span className="eyebrow">BIO 101 / {page.toUpperCase()}</span><h1>{page === 'Overview' ? 'A little progress, every day.' : page === 'Study' ? 'Make room for understanding.' : page === 'Practice' ? 'Put your knowledge to work.' : page === 'Progress' ? 'See how far you’ve come.' : page === 'Materials' ? 'Bring your syllabus.' : 'Your course. Your guidance.'}</h1><p>{page === 'Overview' ? 'Welcome back, Jamie. What will you learn today?' : page === 'Study' ? 'Explore this week’s concepts with your study companion.' : page === 'Practice' ? 'A few thoughtful questions. A stronger understanding.' : page === 'Progress' ? 'Your learning journey, one concept at a time.' : page === 'Materials' ? 'Upload it once, and the assistant follows it from here.' : 'Configure the sample learning environment.'}</p></div><span className="semester">FALL 2026</span></div>
     {page === 'Overview' && <>
       <section className="overview-grid"><div className="continue-card"><span className="pill">THIS WEEK’S FOCUS</span><h2>Small cells.<br />Big discoveries.</h2><p>Explore the structures and processes<br className="desktop-break" /> that make life possible.</p><button className="light-button" onClick={() => setPage('Study')}>Let’s study <span>↗</span></button><div className="chapter-number" aria-hidden="true">03</div><span className="card-foot">CHAPTER 3 <span>Cell structure & function</span></span></div><div className="next-card"><div className="section-heading"><span className="eyebrow">YOUR NEXT STEP</span><span className="accent">✧</span></div><h2>{weak ? 'Give it another try.' : 'Start with a small win.'}</h2><p>{weak ? `${weak} concept${weak > 1 ? 's could' : ' could'} use another look. Try a different question to build understanding.` : 'A short practice session helps you discover what you know and what to revisit.'}</p><div className="session-meta"><span>◷ About 3 minutes</span><span>{weak || 3} concepts</span></div><button className="primary full" onClick={() => practice(weak > 0)}>{weak ? 'Review weak concepts' : 'Start a quick practice'} <span>→</span></button><small>Small steps count. There’s no grade here.</small></div></section>

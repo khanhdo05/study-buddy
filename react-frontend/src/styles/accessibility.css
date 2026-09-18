@@ -1,0 +1,58 @@
+/* Global accessibility settings, applied on <html> by src/lib/accessibility.tsx.
+   Scoped to :root so every screen (auth pages included) picks them up. */
+
+:root {
+  --a11y-font-scale: 1;
+}
+
+html {
+  font-size: calc(100% * var(--a11y-font-scale));
+}
+
+/* Dyslexia-friendly font: Atkinson Hyperlegible, designed for low vision and
+   dyslexia, with generous spacing to reduce letter confusion. */
+:root.a11y-font-dyslexia {
+  --a11y-font-family: 'Atkinson Hyperlegible', Verdana, Arial, sans-serif;
+}
+
+:root.a11y-font-dyslexia body,
+:root.a11y-font-dyslexia input,
+:root.a11y-font-dyslexia textarea,
+:root.a11y-font-dyslexia select,
+:root.a11y-font-dyslexia button {
+  font-family: var(--a11y-font-family);
+  letter-spacing: 0.02em;
+}
+
+:root.a11y-font-dyslexia p,
+:root.a11y-font-dyslexia li {
+  line-height: 1.85;
+}
+
+/* High contrast: darken secondary text and borders instead of inverting the
+   whole theme, so components that hardcode a white background stay legible. */
+:root.a11y-contrast-high {
+  --muted: #10161d;
+  --border: #10161d;
+}
+
+:root.a11y-contrast-high body {
+  color: #05070a;
+}
+
+:root.a11y-contrast-high :focus-visible {
+  outline-width: 4px;
+  outline-color: #05070a;
+}
+
+:root.a11y-contrast-high .text-button,
+:root.a11y-contrast-high a {
+  text-decoration: underline;
+}
+
+:root.a11y-reduce-motion,
+:root.a11y-reduce-motion * {
+  transition: none !important;
+  animation: none !important;
+  scroll-behavior: auto !important;
+}
