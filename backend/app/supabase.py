@@ -37,6 +37,22 @@ class UserDatabase:
             raise HTTPException(404, 'Material not found in this course.')
         return rows[0]
 
+    def published_materials(self, course_id: str):
+        return self.get('rest/v1/course_materials', {
+            'course_id': f'eq.{course_id}', 'published': 'eq.true', 'select': '*',
+            'order': 'created_at.desc',
+        })
+
+    def policy(self, course_id: str):
+        rows = self.get('rest/v1/course_policies', {
+            'course_id': f'eq.{course_id}', 'select': '*',
+        })
+        return rows[0] if rows else {
+            'hints_first': True, 'require_attempt': True,
+            'allow_direct_answers': False, 'restrict_to_topics': True,
+            'topics': [], 'objectives': [], 'instructions': '',
+        }
+
     def download(self, bucket: str, path: str, limit: int) -> bytes:
         from urllib.parse import quote
         try:

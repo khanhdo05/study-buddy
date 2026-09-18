@@ -31,10 +31,12 @@ function reply(text: string, hints: boolean, syllabus: SyllabusInfo | null) {
 }
 export function Study({
   hints,
-  syllabus
+  syllabus,
+  liveApi = false,
 }: {
   hints: boolean;
   syllabus: SyllabusInfo | null;
+  liveApi?: boolean;
 }) {
   const { focusMode } = useAccessibility();
   const [messages, setMessages] = useState<Message[]>([{
@@ -42,22 +44,41 @@ export function Study({
     text: intro
   }]);
   const [input, setInput] = useState('');
+  const [error, setError] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
-  function send(text: string) {
+  async function send(text: string) {
     if (!text.trim()) return;
-    setMessages(old => [...old, {
+    const message = text.trim();
+    setError('');
+    const next = [...messages, {
       role: 'user',
-      text: text.trim()
-    }, {
-      role: 'assistant',
-      text: reply(text, hints, syllabus)
-    }]);
+      text: message
+    } as Message];
+    setMessages(next);
     setInput('');
+    if (!liveApi) {
+      setMessages([...next, { role: 'assistant', text: reply(message, hints, syllabus) }]);
+      return;
+    }
+    try {
+      const base = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://localhost:8000';
+      const response = await fetch(`${base}/demo/chat`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, history: next.slice(-8) }), signal: AbortSignal.timeout(90000),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || 'The AI service could not answer.');
+      setMessages([...next, { role: 'assistant', text: result.answer }]);
+    } catch (error) {
+      setMessages(next);
+      setInput(message);
+      setError(error instanceof Error ? error.message : 'The AI service could not answer.');
+    }
   }
   function submit(e: FormEvent) {
     e.preventDefault();
-    send(input);
+    void send(input);
   }
   function toggleReadAloud(i: number, text: string) {
     if (speakingIndex === i) {
@@ -74,11 +95,11 @@ export function Study({
   const chunked = focusMode && !showAll && messages.length > 2;
   const visibleMessages = chunked ? messages.slice(-2) : messages;
   const indexOffset = messages.length - visibleMessages.length;
-  return <div className="study-layout"><section className="panel chat"><div className="section-heading"><div className="chat-title"><span className="assistant-icon">✧</span><div><h2>Your study companion</h2><small>Chapter 3 · Cell structure & function</small></div></div><button className="text-button" onClick={() => {
+  return <div className="study-layout"><section className="panel chat"><div className="section-heading"><div className="chat-title"><span className="assistant-icon">✧</span><div><h2>Your study companion</h2><small>Chapter 3 · Cell structure & function</small></div></div><span className="badge developing">{liveApi ? 'Live AI' : 'Demo'}</span><button className="text-button" onClick={() => {
           setMessages([{
             role: 'assistant',
             text: intro
           }]);
           setShowAll(false);
-        }}>New chat</button></div>{chunked && <button type="button" className="text-button" onClick={() => setShowAll(true)}>Show {messages.length - 2} earlier message{messages.length - 2 === 1 ? '' : 's'}</button>}<div className="messages" role="log" aria-label="Study conversation" aria-live="polite">{visibleMessages.map((message, i) => { const realIndex = indexOffset + i; return <div key={realIndex} className={`message ${message.role}`}><span className="eyebrow">{message.role === 'user' ? 'YOU' : 'STUDY BUDDY'}</span><p>{message.text}</p>{message.role === 'assistant' && isSpeechSupported() && <button type="button" className="text-button" onClick={() => toggleReadAloud(realIndex, message.text)}>{speakingIndex === realIndex ? '■ Stop' : '🔊 Read aloud'}</button>}</div>; })}</div>{messages.length === 1 && <div className="suggestions">{['Explain membrane transport', 'How do enzymes work?', 'Make a review sheet'].map(prompt => <button className="secondary" key={prompt} onClick={() => send(prompt)}>{prompt} ↗</button>)}</div>}<form className="composer" onSubmit={submit}><label className="sr-only" htmlFor="question">Ask a course question</label><input id="question" value={input} onChange={e => setInput(e.target.value)} placeholder="What would you like to understand?" maxLength={2000} /><button className="primary" disabled={!input.trim()} type="submit" aria-label="Send message">↑</button></form><small className="chat-disclaimer">Prepared demo responses · not connected to an AI model</small></section><aside><section className="scope-card"><span className="eyebrow">YOUR LEARNING SPACE</span><h3>Grounded in your course.</h3><p>Currently exploring Chapter 3: cell structure and function.</p><hr /><strong>Instructor guidance</strong><p>{hints ? 'Guiding questions first. Share your attempt before asking for homework help.' : 'Concept explanations and sample review responses are enabled.'}</p><hr /><strong>Your syllabus</strong><p>{syllabus ? `${syllabus.courseName} · ${syllabus.topics.length} topic(s) in scope` : 'No syllabus uploaded yet — add one from the Materials tab.'}</p><span className="badge mastered">✓ Practice is encouraged</span></section></aside></div>;
+        }}>New chat</button></div>{error && <p className="form-error" role="alert">{error}</p>}{chunked && <button type="button" className="text-button" onClick={() => setShowAll(true)}>Show {messages.length - 2} earlier message{messages.length - 2 === 1 ? '' : 's'}</button>}<div className="messages" role="log" aria-label="Study conversation" aria-live="polite">{visibleMessages.map((message, i) => { const realIndex = indexOffset + i; return <div key={realIndex} className={`message ${message.role}`}><span className="eyebrow">{message.role === 'user' ? 'YOU' : 'STUDY BUDDY'}</span><p>{message.text}</p>{message.role === 'assistant' && isSpeechSupported() && <button type="button" className="text-button" onClick={() => toggleReadAloud(realIndex, message.text)}>{speakingIndex === realIndex ? '■ Stop' : '🔊 Read aloud'}</button>}</div>; })}</div>{messages.length === 1 && <div className="suggestions">{['Explain membrane transport', 'How do enzymes work?', 'Make a review sheet'].map(prompt => <button className="secondary" key={prompt} onClick={() => void send(prompt)}>{prompt} ↗</button>)}</div>}<form className="composer" onSubmit={submit}><label className="sr-only" htmlFor="question">Ask a course question</label><input id="question" value={input} onChange={e => setInput(e.target.value)} placeholder="What would you like to understand?" maxLength={2000} /><button className="primary" disabled={!input.trim()} type="submit" aria-label="Send message">↑</button></form><small className="chat-disclaimer">{liveApi ? 'Live response from the Study Buddy backend · grounded in demo course evidence' : 'Prepared demo responses · not connected to an AI model'}</small></section><aside><section className="scope-card"><span className="eyebrow">YOUR LEARNING SPACE</span><h3>Grounded in your course.</h3><p>Currently exploring Chapter 3: cell structure and function.</p><hr /><strong>Instructor guidance</strong><p>{hints ? 'Guiding questions first. Share your attempt before asking for homework help.' : 'Concept explanations and sample review responses are enabled.'}</p><hr /><strong>Your syllabus</strong><p>{syllabus ? `${syllabus.courseName} · ${syllabus.topics.length} topic(s) in scope` : 'No syllabus uploaded yet — add one from the Materials tab.'}</p><span className="badge mastered">✓ Practice is encouraged</span></section></aside></div>;
 }

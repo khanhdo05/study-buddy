@@ -5,6 +5,7 @@ import { SignOutButton } from '../../components/SignOutButton'
 import type { Course, Profile } from '../../lib/supabase'
 import { CourseMaterials } from '../materials/CourseMaterials'
 import { CoursePolicies } from '../policies/CoursePolicies'
+import { CourseStudy } from '../study/CourseStudy'
 import { CourseInvitation } from './CourseInvitation'
 import { allowedCoursePage, courseNavigation, courseRole, EMPTY_COURSE_CONTENT, ROLE_LABELS, type CoursePage } from './workspace'
 
@@ -38,7 +39,8 @@ export function CourseWorkspace({ course, profile, requestedPage, onNavigate, on
         {page === 'overview' && <><section className="panel course-summary"><h2>{role === 'owner' ? 'Bring your class together.' : 'You’re in the right place.'}</h2><p>{role === 'owner' ? 'Your course is ready for students to join. Share an invitation to get started.' : 'You are enrolled in this course. Your instructor’s materials and learning activities will appear in this workspace.'}</p><dl><div><dt>Course name</dt><dd>{course.name}</dd></div><div><dt>Course code</dt><dd>{course.code}</dd></div><div><dt>Your access</dt><dd>{ROLE_LABELS[role]}</dd></div></dl></section><div className="course-cards workspace-links">{navigation.filter(item => item.id !== 'overview').map(item => <button key={item.id} className="panel course-card" onClick={() => onNavigate(item.id)}><span aria-hidden="true">{item.icon}</span><h3>{item.label}</h3><span className="muted">Open {item.label.toLowerCase()} →</span></button>)}</div></>}
         {page === 'materials' && <CourseMaterials key={course.id} courseId={course.id} editable={role === 'owner'}/>}
         {page === 'overview' && <CoursePolicies key={course.id} courseId={course.id} editable={false}/>}
-        {emptyContent && <EmptyState {...emptyContent}/>}
+        {page === 'study' && <CourseStudy courseId={course.id}/>}
+        {emptyContent && page !== 'study' && <EmptyState {...emptyContent}/>}
         {page === 'settings' && role === 'owner' && <div className="course-settings"><CourseInvitation key={course.id} courseId={course.id}/><CoursePolicies key={course.id} courseId={course.id} editable/></div>}
       </main>
     </div>

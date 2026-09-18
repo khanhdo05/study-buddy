@@ -1,6 +1,9 @@
-# Learner agent
+# Study Buddy API
 
-This service is the model-facing layer between the separate frontend and backend application services. It accepts extracted, versioned course sources and returns grounded, structured artefacts.
+This FastAPI service is the trusted model-facing layer. It receives a Supabase
+access token, lets Supabase RLS determine course access, reads only published
+course materials, and calls the configured model. The browser never receives the
+OpenAI key.
 
 ## Run locally
 
@@ -9,29 +12,37 @@ cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-export AGENT_API_KEY='local-dev-key'
-# Optional: enables model-backed generation; without it, a safe source-index fallback is used.
-export OPENAI_API_KEY='...'
+# Copy .env.example to .env and set SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,
+# and OPENAI_API_KEY. Do not put the OpenAI key in VITE_* frontend variables.
 uvicorn app.main:app --reload --port 8000
 ```
 
-Every `/v1/*` request needs `Authorization: Bearer $AGENT_API_KEY`. `/health` is public for service checks.
+The frontend expects `VITE_API_URL=http://localhost:8000`. Check the service:
+
+```bash
+curl http://localhost:8000/health
+```
+
+`llm_configured` must be `true` for live Study responses. If it is `false`,
+the backend is running but the model provider is not configured.
 
 ## Integration notes
 
-- The service stores runs, versioned sources, quizzes, and attempts in SQLite by default. Set `STUDY_BUDDY_DB` for another location.
-- `POST /v1/sessions` receives extracted text rather than raw files; file parsing belongs to the application backend.
-- Generated quiz keys are persisted but should be human-reviewed before a quiz is marked trusted.
-- Call `POST /v1/quiz/{quiz_id}/verify` after a human checks the answer key; grading is rejected until then.
-- The frontend can call this service through a backend proxy; do not expose the agent API key in the browser.
-- The LLM adapter uses an OpenAI-compatible chat-completions endpoint and can be replaced through `LLM_ENDPOINT`.
+- `POST /courses/{course_id}/chat` powers the real course Study view.
+- `POST /courses/{course_id}/materials/{material_id}/extract` previews document text.
+- `POST /courses/{course_id}/materials/{material_id}/suggest` uses structured model output for topics, objectives, and policy passages.
+- `POST /courses/{course_id}/chat` requires `message`, and accepts `attempt` and recent `history`.
+- Chat answers use only published materials and the saved course policy; evidence is treated as untrusted document data.
+- PDFs with no text layer need OCR and are rejected with an explanation for now.
+- Public website sources must be HTTPS. Login-only pages should be exported as PDF or text.
+- The OpenAI adapter is isolated in `app/llm.py`, so another OpenAI-compatible provider can replace it later.
 
 ## Smoke test
 
 ```bash
 curl http://localhost:8000/health
-curl -H "Authorization: Bearer $AGENT_API_KEY" \
+curl -X POST http://localhost:8000/courses/COURSE_ID/chat \
+  -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H 'Content-Type: application/json' \
-  -d '{"course_id":"bio-101","learner_id":"student-1","sources":[{"source_id":"chapter-3","title":"Cell structure","text":"The cell membrane is selectively permeable. Active transport uses energy."}]}' \
-  http://localhost:8000/v1/sessions
+  -d '{"message":"What is this course about?","attempt":"I think it covers the topics listed in the published materials."}'
 ```

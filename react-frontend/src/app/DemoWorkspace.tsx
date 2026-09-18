@@ -102,7 +102,7 @@ function DemoWorkspace() {
       <section className="stats" aria-label="Practice summary"><div><span className="stat-icon blue">▤</span><div><strong>{attempts}</strong><span>Questions practiced</span></div></div><div><span className="stat-icon green">✓</span><div><strong>{concepts.filter(c => status(c) === 'Mastered').length}<small> / 3</small></strong><span>Concepts mastered</span></div></div><div><span className="stat-icon orange">↻</span><div><strong>{weak}</strong><span>Concepts to revisit</span></div></div></section>
       <section className="bottom-grid"><div><div className="section-heading"><h2>Your learning path</h2><button className="text-button" onClick={() => setPage('Progress')}>View progress ↗</button></div><ConceptList concepts={concepts} /></div><aside className="instructor-note"><span className="eyebrow">A NOTE FROM YOUR INSTRUCTOR</span><h3>Understanding comes<br />before the answer.</h3><p>“Start by explaining your thinking. Making mistakes is part of learning, and this is a safe place to make them.”</p><div className="teacher"><span className="avatar">ML</span><div><strong>Dr. Morgan Lee</strong><small>Introduction to Biology</small></div></div></aside></section>
     </>}
-    {page === 'Study' && <Study hints={hints} syllabus={syllabus} />}
+    {page === 'Study' && <Study hints={hints} syllabus={syllabus} liveApi />}
     {page === 'Practice' && <Practice concepts={concepts} reviewOnly={reviewOnly} onRecord={record} onProgress={() => setPage('Progress')} />}
     {page === 'Materials' && <Materials syllabus={syllabus} onSyllabusChange={updateSyllabus} />}
     {page === 'Profile' && <Profile />}
