@@ -7,10 +7,12 @@ Build an agent that helps a student learn faster and better during an academic c
 Give it a syllabus and a chapter (or a research paper). It must do the following:
 
 ------functional requirements---------------------
+
 -produce a concept map, 
 -a critical-review sheet 
 -a quiz.
 ------Non-functional requirements------------------
+
 -it remembers what the student got wrong
 -re-quizzes those items in a later session. 
 -Make it agentic: multi-phase, with the human student in the loop, 
