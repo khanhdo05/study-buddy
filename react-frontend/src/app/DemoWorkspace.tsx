@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Brand } from '../components/Brand';
 import { initialConcepts, status, type Concept } from '../lib/demo';
 import { loadSyllabusInfo, saveSyllabusInfo, type SyllabusInfo } from '../lib/syllabus';
 import { Practice } from '../features/practice/Practice';
@@ -69,10 +70,7 @@ function DemoWorkspace() {
   return <div className={focus ? 'app focus' : 'app'}>
     <a className="skip-link" href="#main">Skip to content</a>
     <aside className="sidebar">
-      <a className="brand" href="#" onClick={e => {
-        e.preventDefault();
-        setPage('Overview');
-      }}><span className="brand-mark">sb<span>·</span></span>study buddy</a>
+      <Brand onClick={() => setPage('Overview')} />
       <div className="workspace-label">YOUR WORKSPACE</div>
       <nav aria-label="Main navigation">{nav.map(item => <button key={item.page} className={page === item.page ? 'nav-item active' : 'nav-item'} aria-current={page === item.page ? 'page' : undefined} onClick={() => setPage(item.page)}><span aria-hidden="true">{item.icon}</span>{item.page}{item.page === 'Practice' && weak > 0 && <span className="nav-count">{weak}</span>}</button>)}{role === 'Student' && <button className={`nav-item ${page === 'Materials' ? 'active' : ''}`} aria-current={page === 'Materials' ? 'page' : undefined} onClick={() => setPage('Materials')}><span aria-hidden="true">▥</span>Materials</button>}{role === 'Professor' && <button className={`nav-item ${page === 'Course settings' ? 'active' : ''}`} onClick={() => setPage('Course settings')}>⚙ Course settings</button>}</nav>
       <div className="sidebar-course"><span className="eyebrow">CURRENT COURSE</span><strong>Introduction to Biology</strong><span>BIO 101 · Fall semester</span><div className="course-line" /><small>Week 3 of 16</small></div>

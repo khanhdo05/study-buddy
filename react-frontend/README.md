@@ -48,6 +48,7 @@ Run these commands inside `react-frontend/`:
 | `npm run dev` | Start the Vite development server. |
 | `npm run build` | Check TypeScript and generate a production build in `dist/`. |
 | `npm run lint` | Check code against the ESLint rules. |
+| `npm test` | Check course-role navigation and restricted-view behavior. |
 | `npm run preview` | Preview the production build locally. Run the build first. |
 
 ## Check your changes
@@ -94,11 +95,12 @@ src/
 │   └── DemoWorkspace.tsx     # Sample-course layout and navigation
 ├── features/
 │   ├── auth/                 # Sign-in, sign-up, password recovery, auth styles
-│   ├── courses/              # Course list, creation, invitations, course styles
+│   ├── courses/              # Course list, workspace, API calls, invitations, navigation
 │   ├── materials/            # Syllabus upload and extraction interface
 │   ├── practice/             # Quiz interaction and feedback
 │   ├── progress/             # Concept progress display
 │   └── study/                # Scripted study chat
+├── components/               # Shared brand, empty states, sign-out control
 ├── styles/
 │   ├── forms.css             # Shared form controls and feedback
 │   └── workspace.css         # Shared UI and responsive workspace styles
@@ -123,6 +125,20 @@ Before signing up:
 2. Copy `.env.example` to `.env.local` and enter your project URL and publishable key. `.env.local` is ignored by Git. Never add a secret or service-role key.
 3. Restart `npm run dev`.
 
-Without configuration, account forms are disabled and the sample course remains available. Real courses start empty; opening one does not substitute sample Biology content or import local demo progress.
+Without configuration, account forms are disabled and the sample course remains available. Creating or joining a course opens its workspace. Selecting a course also opens it, and the course/view URL survives refresh and browser Back. Real courses start empty; they do not substitute sample Biology content or import local demo progress.
 
 Authentication screens live in `src/features/auth/`, course screens in `src/features/courses/`, and the session gate in `src/app/AppRouter.tsx`; the shared Supabase client and account types live in `src/lib/supabase.ts`. Database migrations and permission tests live in `../supabase/`.
+
+### Real course workspace
+
+- `features/courses/api.ts` owns Supabase course queries and mutations.
+- `features/courses/workspace.ts` defines navigation IDs, labels, role rules, and empty-state copy once.
+- `features/courses/useCourseLocation.ts` keeps course/view selection in the URL.
+- `features/courses/CourseWorkspace.tsx` renders the selected course and authenticated profile.
+- `features/courses/CourseInvitation.tsx` owns the invitation flow.
+
+Course ownership controls owner-only navigation; the database's RLS and invitation RPC still enforce access. A course is opened only after it appears in the authenticated user's RLS-filtered course list. Missing or inaccessible IDs show an unavailable screen; students cannot reach settings by changing the view parameter.
+
+Owner workflow: create/open a course → **Course settings** → generate a student invitation. Student workflow: join with that code → open the same course workspace. Materials, Study, Practice, and Progress currently display honest empty states until those backend features are connected. The sample course remains an explicit, separate demo.
+
+`npm test` checks frontend role/navigation behavior; it does not replace database permission tests or hosted end-to-end account verification.

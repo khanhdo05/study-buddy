@@ -10,5 +10,11 @@ export const supabase = url && key && url !== 'https://your-project.supabase.co'
 export type Profile = { id: string; full_name: string; role: 'student' | 'professor' }
 export type Course = { id: string; name: string; code: string; owner_id: string; created_at: string }
 export function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'Something went wrong. Please try again.'
+  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') return error.message
+  return 'Something went wrong. Please try again.'
+}
+
+export function requireSupabase() {
+  if (!supabase) throw new Error("Supabase is not configured.")
+  return supabase
 }

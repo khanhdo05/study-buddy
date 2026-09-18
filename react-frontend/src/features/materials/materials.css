@@ -1,0 +1,6 @@
+.materials-workspace { display: grid; gap: 24px; }
+.course-material-row { padding: 22px 0; border-top: 1px solid var(--border); }
+.course-material-row h3 { overflow-wrap: anywhere; margin-bottom: 10px; }
+.material-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.extracted-text { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow: auto; background: #f5f7fa; padding: 20px; font-size: .875rem; line-height: 1.6; }
+.materials-workspace blockquote { border-left: 3px solid #cbd5e1; padding-left: 18px; margin-left: 0; }
