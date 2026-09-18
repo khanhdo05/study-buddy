@@ -3,7 +3,7 @@ from fastapi import Depends, FastAPI
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 from .config import get_settings
-from .llm import answer_course_question, get_extractor
+from .llm import answer_course_question, generate_course_quiz, get_extractor
 from .documents import MAX_BYTES, extract_text, fetch_website
 from .supabase import UserDatabase, user_database
 
@@ -73,6 +73,51 @@ def chat(course_id: UUID, request: ChatRequest, db: UserDatabase = Depends(user_
     answer = answer_course_question(get_settings(), request.message, request.attempt,
                                     policy, '\n\n'.join(evidence_parts)[:50000], request.history)
     return {**answer, 'course_id': course_id_text, 'llm_connected': True}
+
+
+class QuizRequest(BaseModel):
+    count: int = Field(default=5, ge=1, le=10)
+
+
+@app.post('/courses/{course_id}/quiz')
+def quiz(course_id: UUID, request: QuizRequest, db: UserDatabase = Depends(user_database)):
+    policy = db.policy(str(course_id))
+    evidence = []
+    for material in db.published_materials(str(course_id)):
+        try:
+            if material['source_type'] == 'website': content, mime = fetch_website(material['source_url'])
+            else: content, mime = db.download(material['bucket'], material['storage_path'], MAX_BYTES), material['mime_type']
+            text, _ = extract_text(content, mime)
+            evidence.append(f"SOURCE {material['title']}:\n{text[:12000]}")
+        except Exception: continue
+    if not evidence: raise HTTPException(422, 'Publish at least one readable course material before generating practice.')
+    return {**generate_course_quiz(get_settings(), policy, '\n\n'.join(evidence)[:50000], request.count), 'course_id': str(course_id), 'llm_connected': True}
+
+
+class AnswerRequest(BaseModel):
+    concept: str = Field(min_length=1, max_length=200)
+    correct: bool
+
+
+@app.post('/courses/{course_id}/progress')
+def record_progress(course_id: UUID, request: AnswerRequest, db: UserDatabase = Depends(user_database)):
+    user = db.get('auth/v1/user')
+    # Fetching the course through the same bearer token confirms enrollment/ownership via RLS.
+    if not db.get('rest/v1/courses', {'id': f'eq.{course_id}', 'select': 'id'}):
+        raise HTTPException(403, 'You are not enrolled in this course.')
+    existing = db.get('rest/v1/student_concept_state', {'student_id': f'eq.{user["id"]}', 'course_id': f'eq.{course_id}', 'concept': f'eq.{request.concept}', 'select': '*'} )
+    current = existing[0] if existing else {'times_seen': 0, 'times_correct': 0}
+    row = {'student_id': user['id'], 'course_id': str(course_id), 'concept': request.concept.strip(), 'times_seen': current['times_seen'] + 1, 'times_correct': current['times_correct'] + int(request.correct), 'last_result': request.correct, 'last_reviewed': 'now()'}
+    # PostgREST does not evaluate SQL expressions in JSON; use a timestamp generated server-side.
+    from datetime import datetime, timezone
+    row['last_reviewed'] = datetime.now(timezone.utc).isoformat()
+    saved = db.post('rest/v1/student_concept_state', row, upsert=True)
+    return saved[0] if saved else row
+
+
+@app.get('/courses/{course_id}/progress')
+def progress(course_id: UUID, db: UserDatabase = Depends(user_database)):
+    return db.get('rest/v1/student_concept_state', {'course_id': f'eq.{course_id}', 'select': 'concept,times_seen,times_correct,last_result,last_reviewed', 'order': 'last_reviewed.desc'})
 
 
 DEMO_POLICY = {

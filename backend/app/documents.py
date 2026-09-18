@@ -6,6 +6,7 @@ from urllib.parse import urlsplit, urljoin
 from bs4 import BeautifulSoup
 from fastapi import HTTPException
 from pypdf import PdfReader
+from pptx import Presentation
 import urllib3
 
 MAX_BYTES = 10 * 1024 * 1024
@@ -68,7 +69,21 @@ def extract_text(content: bytes, mime: str) -> tuple[str, list[str]]:
     warnings = []
     if len(content) > MAX_BYTES:
         raise HTTPException(413, 'Document exceeds the 10 MiB processing limit.')
-    if mime == 'application/pdf':
+    if mime == 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+        try:
+            presentation = Presentation(BytesIO(content))
+            if len(presentation.slides) > MAX_PAGES:
+                raise ValueError('Please upload a slide deck with at most 100 slides.')
+            slides = []
+            for number, slide in enumerate(presentation.slides, 1):
+                parts = [shape.text for shape in slide.shapes if hasattr(shape, 'text') and shape.text.strip()]
+                slides.append(f'[Slide {number}]\n' + '\n'.join(parts))
+            text = '\n\n'.join(slides)
+            if not text.strip():
+                raise ValueError('No readable text found in this slide deck.')
+        except Exception as exc:
+            raise HTTPException(422, str(exc) if isinstance(exc, ValueError) else 'This slide deck could not be parsed.') from exc
+    elif mime == 'application/pdf':
         try:
             reader = PdfReader(BytesIO(content))
             if reader.is_encrypted:

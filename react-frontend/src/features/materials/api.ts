@@ -6,7 +6,7 @@ export type Material = {
 export type Suggestions = { topics: string[]; objectives: string[]; policy_passages: string[]; uncertainties: string[] }
 export type Extraction = { material_id: string; text: string; warnings: string[]; llm_connected: boolean; suggestions: Suggestions | null }
 export const MATERIAL_LIMIT = 10 * 1024 * 1024
-export const MATERIAL_ACCEPT = '.pdf,.txt,.md'
+export const MATERIAL_ACCEPT = '.pdf,.txt,.md,.pptx'
 export async function listMaterials(courseId: string) {
   const { data, error } = await requireSupabase().from('course_materials').select('*').eq('course_id', courseId).order('created_at', { ascending: false })
   if (error) throw error
@@ -20,10 +20,10 @@ export async function addMaterial(courseId: string, title: string, file: File | 
   if (!title.trim()) throw new Error('Enter a title.')
   if (file) {
     const extension = file.name.split('.').pop()?.toLowerCase()
-    if (!extension || !['pdf', 'txt', 'md'].includes(extension)) throw new Error('Upload a PDF, text, or Markdown file.')
+    if (!extension || !['pdf', 'txt', 'md', 'pptx'].includes(extension)) throw new Error('Upload a PDF, text, Markdown, or PowerPoint file.')
     if (!file.size || file.size > MATERIAL_LIMIT) throw new Error('Choose a nonempty file up to 10 MiB.')
-    mime = extension === 'pdf' ? 'application/pdf' : 'text/plain'
-    uploadedPath = `${courseId}/${id}.${extension === 'pdf' ? 'pdf' : 'txt'}`
+    mime = extension === 'pdf' ? 'application/pdf' : extension === 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : 'text/plain'
+    uploadedPath = `${courseId}/${id}.${extension}`
     const { error } = await db.storage.from('course-materials').upload(uploadedPath, file, { contentType: mime, upsert: false })
     if (error) throw error
   } else {

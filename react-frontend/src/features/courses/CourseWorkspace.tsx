@@ -6,6 +6,7 @@ import type { Course, Profile } from '../../lib/supabase'
 import { CourseMaterials } from '../materials/CourseMaterials'
 import { CoursePolicies } from '../policies/CoursePolicies'
 import { CourseStudy } from '../study/CourseStudy'
+import { CoursePractice } from '../practice/CoursePractice'
 import { CourseInvitation } from './CourseInvitation'
 import { allowedCoursePage, courseNavigation, courseRole, EMPTY_COURSE_CONTENT, ROLE_LABELS, type CoursePage } from './workspace'
 
@@ -40,6 +41,7 @@ export function CourseWorkspace({ course, profile, requestedPage, onNavigate, on
         {page === 'materials' && <CourseMaterials key={course.id} courseId={course.id} editable={role === 'owner'}/>}
         {page === 'overview' && <CoursePolicies key={course.id} courseId={course.id} editable={false}/>}
         {page === 'study' && <CourseStudy courseId={course.id}/>}
+        {page === 'practice' && <CoursePractice courseId={course.id}/>}
         {emptyContent && page !== 'study' && <EmptyState {...emptyContent}/>}
         {page === 'settings' && role === 'owner' && <div className="course-settings"><CourseInvitation key={course.id} courseId={course.id}/><CoursePolicies key={course.id} courseId={course.id} editable/></div>}
       </main>

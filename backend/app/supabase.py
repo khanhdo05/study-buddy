@@ -23,6 +23,16 @@ class UserDatabase:
             raise HTTPException(502, 'Cannot load course data. Check the database migration.')
         return response.json()
 
+    def post(self, path: str, payload: dict, *, upsert: bool = False):
+        headers = {**self.headers, 'Content-Type': 'application/json', 'Prefer': 'return=representation' + (',resolution=merge-duplicates' if upsert else '')}
+        try:
+            response = httpx.post(f'{self.url}/{path}', headers=headers, json=payload, timeout=15)
+        except httpx.HTTPError as exc:
+            raise HTTPException(502, 'Cannot reach the course database.') from exc
+        if response.status_code in (401, 403): raise HTTPException(401, 'Your session expired or access was denied.')
+        if not response.is_success: raise HTTPException(502, 'The learning result could not be saved.')
+        return response.json() if response.content else None
+
     def require_owner(self, course_id: str):
         user = self.get('auth/v1/user')
         courses = self.get('rest/v1/courses', {'id': f'eq.{course_id}', 'select': 'id,owner_id'})

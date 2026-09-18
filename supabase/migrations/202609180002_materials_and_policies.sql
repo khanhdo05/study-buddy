@@ -13,7 +13,7 @@ create table public.course_materials (
   check (
     (source_type = 'website' and source_url is not null and source_url ~ '^https://[^[:space:]]+$' and length(source_url) <= 2000 and bucket is null and storage_path is null and mime_type is null)
     or
-    (source_type = 'file' and bucket is not null and storage_path is not null and mime_type is not null and source_url is null and bucket in ('course-materials', 'professor-materials') and storage_path like course_id::text || '/%' and storage_path !~ '(^|/)\.\.(/|$)' and length(storage_path) <= 512 and mime_type in ('application/pdf', 'text/plain'))
+    (source_type = 'file' and bucket is not null and storage_path is not null and mime_type is not null and source_url is null and bucket in ('course-materials', 'professor-materials') and storage_path like course_id::text || '/%' and storage_path !~ '(^|/)\.\.(/|$)' and length(storage_path) <= 512 and mime_type in ('application/pdf', 'text/plain', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'))
   ),
   check (not published or bucket is distinct from 'professor-materials'),
   unique (bucket, storage_path)
