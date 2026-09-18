@@ -1,75 +1,69 @@
-# React + TypeScript + Vite
+# Study Buddy Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The Study Buddy frontend uses React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Install Node.js and npm, then check that both are available:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+node --version
+npm --version
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## First-time setup
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+From the repository root (`study-buddy/`), run:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cd react-frontend
+npm ci
+npm run dev
 ```
+
+`npm ci` installs the dependencies recorded in `package-lock.json` for a consistent team setup.
+
+Open the local URL printed in the terminal. Keep the terminal running while developing. Saved source changes update the app automatically. Press **Ctrl+C** to stop the server.
+
+## Daily development
+
+From the repository root:
+
+```bash
+cd react-frontend
+npm run dev
+```
+
+You do not need to reinstall dependencies every time you start the app. Run `npm ci` again after pulling changes to `package.json` or `package-lock.json`.
+
+To add a dependency, use `npm install <package-name>` and commit both `package.json` and `package-lock.json`. Do not commit `node_modules/`.
+
+## Available commands
+
+Run these commands inside `react-frontend/`:
+
+| Command | Purpose |
+| --- | --- |
+| `npm ci` | Install dependencies from the committed lockfile. |
+| `npm run dev` | Start the Vite development server. |
+| `npm run build` | Check TypeScript and generate a production build in `dist/`. |
+| `npm run lint` | Check code against the ESLint rules. |
+| `npm run preview` | Preview the production build locally. Run the build first. |
+
+## Check your changes
+
+Before opening a pull request, run:
+
+```bash
+npm run lint
+npm run build
+```
+
+To preview the production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+Open the URL printed by the preview server. This is a local preview, not a production deployment.
