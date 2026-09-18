@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { makeQuiz, type Concept } from '../lib/demo';
+import { makeQuiz, type Concept } from '../../lib/demo';
 type Props = {
   concepts: Concept[];
   reviewOnly: boolean;

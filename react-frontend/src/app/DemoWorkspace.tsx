@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { initialConcepts, status, type Concept } from './lib/demo';
-import { loadSyllabusInfo, saveSyllabusInfo, type SyllabusInfo } from './lib/syllabus';
-import { Practice } from './features/Practice';
-import { Study } from './features/Study';
-import { Materials } from './features/Materials';
-import './App.css';
+import { initialConcepts, status, type Concept } from '../lib/demo';
+import { loadSyllabusInfo, saveSyllabusInfo, type SyllabusInfo } from '../lib/syllabus';
+import { Practice } from '../features/practice/Practice';
+import { Study } from '../features/study/Study';
+import { Materials } from '../features/materials/Materials';
+import { ConceptList } from '../features/progress/ConceptList';
 type Page = 'Overview' | 'Study' | 'Practice' | 'Progress' | 'Materials' | 'Course settings';
 const nav: {
   page: Page;
@@ -32,7 +32,7 @@ function loadConcepts(): Concept[] {
   } catch {/* Fall back to fresh demo data when storage is unavailable. */}
   return initialConcepts;
 }
-function App() {
+function DemoWorkspace() {
   const [page, setPage] = useState<Page>('Overview');
   const [role, setRole] = useState('Student');
   const [concepts, setConcepts] = useState(loadConcepts);
@@ -98,11 +98,4 @@ function App() {
     </main></div>
   </div>;
 }
-function ConceptList({
-  concepts
-}: {
-  concepts: Concept[];
-}) {
-  return <div className="concept-list">{concepts.map((c, i) => <div className="concept-row" key={c.id}><span className="concept-number">0{i + 1}</span><div className="concept-info"><strong>{c.name}</strong><small>{c.attempts ? `${c.correct} correct · ${c.attempts} attempted` : c.description}</small></div><span className={`badge ${status(c).toLowerCase().replaceAll(' ', '-')}`}>{status(c)}</span></div>)}</div>;
-}
-export default App;
+export default DemoWorkspace;

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { extractSyllabusInfo, type SyllabusInfo } from '../lib/syllabus';
+import { extractSyllabusInfo, type SyllabusInfo } from '../../lib/syllabus';
 
 type Props = {
   syllabus: SyllabusInfo | null;

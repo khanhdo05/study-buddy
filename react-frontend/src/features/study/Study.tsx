@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { SyllabusInfo } from '../lib/syllabus';
+import type { SyllabusInfo } from '../../lib/syllabus';
 type Message = {
   role: 'assistant' | 'user';
   text: string;

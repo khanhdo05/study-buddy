@@ -1,0 +1,4 @@
+.auth-loading { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+.auth-global-error { padding: 16px 25px; background: #fff0ee; color: #a22d29; display: flex; justify-content: space-between; gap: 15px; }
+.demo-exit { display: flex; justify-content: space-between; gap: 15px; padding: 12px 25px; background: #eaf1ff; font-size: .875rem; }
+@media (max-width: 550px) { .demo-exit { flex-wrap: wrap; } }

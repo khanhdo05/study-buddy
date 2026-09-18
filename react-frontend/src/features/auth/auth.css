@@ -10,27 +10,7 @@
 .auth-card { width: min(100%, 420px); }
 .auth-card h2 { font-size: 2rem; }
 .auth-card > p { font-size: .95rem; }
-.auth-fields { border: 0; padding: 0; margin: 25px 0 0; display: grid; gap: 20px; min-width: 0; }
-.auth-fields label, .invite-label { display: grid; gap: 9px; font-size: .9rem; font-weight: 550; }
-.auth-fields input, .auth-fields select, .invite-label input { width: 100%; min-width: 0; border: 1px solid #cbd5e1; border-radius: 7px; padding: 12px 14px; background: white; color: #20374f; }
-.auth-fields .primary { justify-content: center; }
 .auth-links { text-align: center; padding: 24px 0; }
 .auth-links p { margin: 18px 0 0; font-size: .9rem; }
 .auth-links button { font-size: .9rem; }
-.auth-error { color: #a22d29; padding: 14px; background: #fff0ee; border-radius: 7px; margin-top: 20px; }
-.auth-message { color: #276650; padding: 14px; background: #eaf7ef; border-radius: 7px; margin-top: 20px; }
-.auth-loading { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-.auth-global-error { padding: 16px 25px; background: #fff0ee; color: #a22d29; display: flex; justify-content: space-between; gap: 15px; }
-.demo-exit { display: flex; justify-content: space-between; gap: 15px; padding: 12px 25px; background: #eaf1ff; font-size: .875rem; }
-.courses-workspace .brand { margin: 0; }
-.courses-workspace main { padding-top: 45px; padding-bottom: 45px; }
-.course-home-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 30px; align-items: start; }
-.course-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-.course-card { text-align: left; color: inherit; }
-.course-card h3 { margin-top: 20px; }
-.course-card .muted { display: flex; justify-content: space-between; }
-.course-details { margin-top: 30px; }
-.course-details h2 { margin-top: 12px; }
-.invite-label { max-width: 500px; }
-@media (max-width: 850px) { .auth-layout { grid-template-columns: 1fr; } .auth-intro { padding: 35px 25px; } .auth-intro .brand { margin-bottom: 35px; } .auth-intro h1 { font-size: 2.3rem; } .auth-intro p, .auth-principles { display: none; } .auth-intro .eyebrow { margin-bottom: 15px; } .course-home-grid { grid-template-columns: 1fr; } }
-@media (max-width: 550px) { .course-cards { grid-template-columns: 1fr; } .courses-workspace .page-heading { align-items: start; flex-direction: column; } .courses-workspace .topbar { height: auto; padding-block: 18px; } .courses-workspace .brand { font-size: 1rem; } .demo-exit { flex-wrap: wrap; } }
+@media (max-width: 850px) { .auth-layout { grid-template-columns: 1fr; } .auth-intro { padding: 35px 25px; } .auth-intro .brand { margin-bottom: 35px; } .auth-intro h1 { font-size: 2.3rem; } .auth-intro p, .auth-principles { display: none; } .auth-intro .eyebrow { margin-bottom: 15px; } }

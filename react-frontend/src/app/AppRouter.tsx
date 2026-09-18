@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import App from '../../App'
-import { supabase, errorMessage } from '../../lib/supabase'
-import { AuthForm } from './AuthForm'
-import { Courses } from './Courses'
-import './auth.css'
+import DemoWorkspace from './DemoWorkspace'
+import { supabase, errorMessage } from '../lib/supabase'
+import { AuthForm } from '../features/auth/AuthForm'
+import { Courses } from '../features/courses/Courses'
+import './AppRouter.css'
 
-export function AuthApp() {
+export function AppRouter() {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(Boolean(supabase))
   const [demo, setDemo] = useState(false)
@@ -38,6 +38,6 @@ export function AuthApp() {
     setSession(null); setDemo(false)
   }
   if (loading) return <div className="auth-loading" role="status">Opening your workspace…</div>
-  if (demo && !recovery) return <><div className="demo-exit"><span>Sample course · separate from your account</span><button className="text-button" onClick={() => setDemo(false)}>{session ? 'Back to my courses' : 'Back to sign in'} →</button></div><App/></>
+  if (demo && !recovery) return <><div className="demo-exit"><span>Sample course · separate from your account</span><button className="text-button" onClick={() => setDemo(false)}>{session ? 'Back to my courses' : 'Back to sign in'} →</button></div><DemoWorkspace/></>
   return <>{error && <div className="auth-global-error" role="alert">{error}<button className="text-button" onClick={() => setError('')}>Dismiss</button></div>}{recovery ? session ? <AuthForm key="recovery" recovery onDemo={() => setDemo(true)} onRecovered={() => { setRecovery(false); window.history.replaceState({}, '', window.location.pathname) }}/> : <div className="auth-loading"><h1>Reset link unavailable</h1><p>Your link may have expired. Request a new one from the sign-in screen.</p><button className="primary" onClick={() => { setRecovery(false); window.history.replaceState({}, '', window.location.pathname) }}>Back to sign in</button></div> : session ? <Courses key={session.user.id} session={session} onSignOut={signOut} onDemo={() => setDemo(true)}/> : <AuthForm key="signin" onDemo={() => setDemo(true)} onRecovered={() => setRecovery(false)}/>}</>
 }

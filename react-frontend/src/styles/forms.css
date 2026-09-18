@@ -1,0 +1,6 @@
+.form-fields { border: 0; padding: 0; margin: 25px 0 0; display: grid; gap: 20px; min-width: 0; }
+.form-fields label { display: grid; gap: 9px; font-size: .9rem; font-weight: 550; }
+.form-fields input, .form-fields select { width: 100%; min-width: 0; border: 1px solid #cbd5e1; border-radius: 7px; padding: 12px 14px; background: white; color: #20374f; }
+.form-fields .primary { justify-content: center; }
+.form-error { color: #a22d29; padding: 14px; background: #fff0ee; border-radius: 7px; margin-top: 20px; }
+.form-message { color: #276650; padding: 14px; background: #eaf7ef; border-radius: 7px; margin-top: 20px; }

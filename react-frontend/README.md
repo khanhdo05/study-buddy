@@ -87,15 +87,31 @@ The sample course is a frontend prototype. Its role selector is not authenticati
 
 ```text
 src/
-├── App.tsx               # Workspace, navigation, overview, settings, progress
-├── App.css               # Responsive interface styles
-├── index.css             # Global styles and theme
+├── main.tsx                  # Entry point and shared style imports
+├── app/
+│   ├── AppRouter.tsx          # Session gate: authentication, courses, or demo
+│   ├── AppRouter.css         # Loading, errors, and demo-return banner
+│   └── DemoWorkspace.tsx     # Sample-course layout and navigation
 ├── features/
-│   ├── Practice.tsx      # Quiz interaction and feedback
-│   └── Study.tsx         # Scripted study chat
+│   ├── auth/                 # Sign-in, sign-up, password recovery, auth styles
+│   ├── courses/              # Course list, creation, invitations, course styles
+│   ├── materials/            # Syllabus upload and extraction interface
+│   ├── practice/             # Quiz interaction and feedback
+│   ├── progress/             # Concept progress display
+│   └── study/                # Scripted study chat
+├── styles/
+│   ├── forms.css             # Shared form controls and feedback
+│   └── workspace.css         # Shared UI and responsive workspace styles
+├── index.css                 # Global styles and theme
 └── lib/
-    └── demo.ts           # Concepts, question bank, review selection
+    ├── demo.ts               # Sample concepts and quiz selection
+    ├── syllabus.ts           # Shared syllabus parsing, types, and local storage
+    └── supabase.ts           # Supabase client and account types
 ```
+
+Keep feature-specific components and styles in their feature folder. `app/` composes screens and owns application navigation; `lib/` contains non-UI helpers shared across features. Add `components/` when extracting UI reused across features, rather than putting course screens inside authentication.
+
+`AppRouter` selects screens from session state; it does not currently implement URL-based routing. Shared workspace styles are imported once by `main.tsx`, so authentication and courses do not depend on importing the demo for their appearance.
 
 ## Supabase accounts and courses
 
@@ -109,4 +125,4 @@ Before signing up:
 
 Without configuration, account forms are disabled and the sample course remains available. Real courses start empty; opening one does not substitute sample Biology content or import local demo progress.
 
-Authentication and course screens live in `src/features/auth/`; the shared Supabase client and account types live in `src/lib/supabase.ts`. Database migrations and permission tests live in `../supabase/`.
+Authentication screens live in `src/features/auth/`, course screens in `src/features/courses/`, and the session gate in `src/app/AppRouter.tsx`; the shared Supabase client and account types live in `src/lib/supabase.ts`. Database migrations and permission tests live in `../supabase/`.
