@@ -70,7 +70,7 @@ Open the URL printed by the preview server. This is a local preview, not a produ
 
 ## Frontend prototype
 
-The app currently opens a sample BIO 101 course with student and professor demo views.
+The app opens a sign-in screen. Choose **Explore the demo without signing in** to open the sample BIO 101 course with student and professor demo views.
 
 - **Overview:** course focus, practice summary, and concept status.
 - **Study:** prepared course explanations and a review sheet; no live AI calls.
@@ -81,7 +81,7 @@ The app currently opens a sample BIO 101 course with student and professor demo 
 
 To try persistent progress, answer a practice question incorrectly, refresh the page, and select **Review weak concepts** on the overview. The next session uses the other sample question for that concept.
 
-This is a frontend prototype. The role selector is not authentication, material references are sample metadata, and chat responses are scripted. Progress is device-local and is not synced across accounts or browsers. Course policy settings and chat history last only for the current session. Backend authorization, uploads, retrieval, LLM calls, and database persistence remain to be implemented.
+The sample course is a frontend prototype. Its role selector is not authentication, material references are sample metadata, and chat responses are scripted. Progress is device-local and is not synced across accounts or browsers. Course policy settings and chat history last only for the current session. Backend authorization, uploads, retrieval, LLM calls, and database persistence remain to be implemented.
 
 ### Source layout
 
@@ -96,3 +96,17 @@ src/
 └── lib/
     └── demo.ts           # Concepts, question bank, review selection
 ```
+
+## Supabase accounts and courses
+
+The app now supports email/password sign-up, email confirmation, sign-in, password reset, restored sessions, and sign-out. Professors can create courses and generate invitation codes; students can join and load their enrolled courses. These records persist in Supabase.
+
+Before signing up:
+
+1. Follow [the Supabase setup guide](../supabase/README.md) to apply the database migration and configure Auth redirect URLs.
+2. Copy `.env.example` to `.env.local` and enter your project URL and publishable key. `.env.local` is ignored by Git. Never add a secret or service-role key.
+3. Restart `npm run dev`.
+
+Without configuration, account forms are disabled and the sample course remains available. Real courses start empty; opening one does not substitute sample Biology content or import local demo progress.
+
+Authentication and course screens live in `src/features/auth/`; the shared Supabase client and account types live in `src/lib/supabase.ts`. Database migrations and permission tests live in `../supabase/`.
